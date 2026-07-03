@@ -1,11 +1,384 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Weather Alert System</title>
+
+    <!-- Font Awesome Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="assets/style.css" />
+  </head>
+  <body>
+    <!-- background layer -->
+    <div class="background-layer"></div>
+    <div class="background-overlay"></div>
+
+    <!-- NAVBAR -->
+
+    <header class="navbar glass">
+      <!-- Logo + Title -->
+      <div class="navbar__brand">
+        <div class="navbar__logo">
+          <i id="navsun" class="fa-solid fa-cloud-sun"></i>
+        </div>
+        <div class="navbar__title">
+          <span class="navbar__title-line">Smart Weather</span>
+          <span class="navbar__title-line">Alert System</span>
+        </div>
+      </div>
+
+      <!-- center  -->
+      <div class="navbar__tagline">Stay Safe Before Weather Changes</div>
+
+      <!-- Notification + Profile -->
+      <div class="navbar__actions">
+        <button
+          class="icon-btn icon-btn--outline"
+          aria-label="Profile"
+          id="profileBtn"
+        >
+          <i class="fa-solid fa-user"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT  -->
+
+    <main class="main-content">
+      <section class="hero">
+        <!-- Left: Current Weather -->
+        <div class="hero__current fade-in">
+          <div class="location">
+            <i class="fa-solid fa-location-dot location__pin"></i>
+            <div class="location__text">
+              <span class="location__city">Bhopal, Madhya Pradesh</span>
+              <span class="location__label">Current Location</span>
+            </div>
+          </div>
+
+          <div class="current-temp">
+            <span class="current-temp__value">27</span>
+            <span class="current-temp__unit">°C</span>
+            <div class="current-temp__icon animate-float">
+              <i class="fa-solid fa-cloud-sun"></i>
+            </div>
+          </div>
+
+          <p class="current-condition">Partly Cloudy</p>
+
+          <p class="last-updated">
+            <i class="fa-regular fa-clock"></i>
+            Last Updated: <span id="lastUpdated">10 May 2025, 10:30 AM</span>
+          </p>
+        </div>
+
+        <!-- Right: 24 Hour Forecast Card -->
+        <div class="hero__forecast glass fade-in fade-in--delay-1">
+          <h2 class="forecast-title">Next 24 Hours Forecast</h2>
+
+          <!-- Forecast Summary Stats -->
+          <div class="forecast-stats">
+            <div class="stat-item">
+              <i class="fa-solid fa-droplet stat-item__icon"></i>
+              <div class="stat-item__text">
+                <span class="stat-item__label">Humidity</span>
+                <span class="stat-item__value">65%</span>
+              </div>
+            </div>
+            <div class="stat-item">
+              <i class="fa-solid fa-wind stat-item__icon"></i>
+              <div class="stat-item__text">
+                <span class="stat-item__label">Wind</span>
+                <span class="stat-item__value">18 km/h</span>
+              </div>
+            </div>
+            <div class="stat-item">
+              <i class="fa-solid fa-gauge stat-item__icon"></i>
+              <div class="stat-item__text">
+                <span class="stat-item__label">Pressure</span>
+                <span class="stat-item__value">1008 hPa</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="forecast-divider"></div>
+
+          <!-- Horizontal Forecast Row -->
+          <div class="forecast-row">
+            <div class="forecast-item">
+              <span class="forecast-item__time">Now</span>
+              <i class="fa-solid fa-cloud-sun forecast-item__icon"></i>
+              <span class="forecast-item__temp">27°C</span>
+            </div>
+            <div class="forecast-item">
+              <span class="forecast-item__time">1 PM</span>
+              <i class="fa-solid fa-cloud-sun forecast-item__icon"></i>
+              <span class="forecast-item__temp">28°C</span>
+            </div>
+            <div class="forecast-item">
+              <span class="forecast-item__time">4 PM</span>
+              <i class="fa-solid fa-cloud-sun forecast-item__icon"></i>
+              <span class="forecast-item__temp">29°C</span>
+            </div>
+            <div class="forecast-item">
+              <span class="forecast-item__time">7 PM</span>
+              <i class="fa-solid fa-cloud-rain forecast-item__icon"></i>
+              <span class="forecast-item__temp">27°C</span>
+            </div>
+            <div class="forecast-item">
+              <span class="forecast-item__time">10 PM</span>
+              <i class="fa-solid fa-cloud-rain forecast-item__icon"></i>
+              <span class="forecast-item__temp">25°C</span>
+            </div>
+            <div class="forecast-item">
+              <span class="forecast-item__time">1 AM</span>
+              <i class="fa-solid fa-cloud-rain forecast-item__icon"></i>
+              <span class="forecast-item__temp">24°C</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="alert-banner glass fade-in" id="activeAlertSection">
+        <div class="alert-banner__left">
+          <div class="alert-banner__icon alert-banner__icon--success">
+            <i class="fa-solid fa-bell"></i>
+          </div>
+          <div class="alert-banner__text">
+            <h3 class="alert-banner__title alert-banner__title--success">
+              No Active Alerts
+            </h3>
+            <p class="alert-banner__desc">
+              You are all set! There are no severe weather alerts for your
+              location.
+            </p>
+          </div>
+        </div>
+        <div class="alert-banner__right">
+          <div class="alert-banner__shield">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+        </div>
+      </section>
+
+      <section class="recent-alerts fade-in">
+        <h2 class="section-title">Recent Alerts</h2>
+
+        <div class="alert-card glass">
+          <div class="alert-card__left">
+            <div class="alert-card__icon">
+              <i class="fa-solid fa-cloud-showers-heavy"></i>
+            </div>
+            <div class="alert-card__text">
+              <h3 class="alert-card__title">Heavy Rain Alert</h3>
+              <div class="alert-card__meta">
+                <span><i class="fa-regular fa-calendar"></i> 9 May 2025</span>
+                <span><i class="fa-regular fa-clock"></i> 2:15 PM</span>
+              </div>
+              <p class="alert-card__desc">
+                Heavy rain expected in your area. Carry an umbrella and stay
+                safe!
+              </p>
+            </div>
+          </div>
+          <div class="alert-card__right">
+            <button class="btn btn--primary" id="viewDetailsBtn">
+              View Details
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Profile Popup -->
+    <div class="box">
+      <div class="popup glass">
+        <div class="popup__header">
+          <h2 class="popup__title" style="text-align: center">Profile</h2>
+          <button class="popup__close" id="closePopupBtn">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <div class="popup__content">
+          <div class="profile__top">
+           
+            <h3 class="profile__name">Alex Morgan</h3>
+            <p class="profile__email">alex.morgan@example.com</p>
+          </div>
+
+          <div class="profile__section">
+            <h4 class="profile__section-title">
+              <i class="fa-solid fa-user"></i>
+              User Information
+            </h4>
+
+            <div class="profile__field">
+              <label class="profile__label" for="profileName">Name</label>
+              <input
+                class="profile__input"
+                type="text"
+                id="profileName"
+                value="Alex Morgan"
+              
+              />
+            </div>
+
+            <div class="profile__field">
+              <label class="profile__label" for="profileEmail">Email</label>
+              <input
+                class="profile__input"
+                type="email"
+                id="profileEmail"
+                value="alex.morgan@example.com"
+                checked
+              />
+            </div>
+          </div>
+
+          <div class="profile__section">
+            <h4 class="profile__section-title">
+              <i class="fa-solid fa-location-dot"></i>
+              Current Location
+            </h4>
+
+            <div class="profile__field">
+              <label class="profile__label" for="profileCity">City</label>
+              <input
+                class="profile__input"
+                type="text"
+                id="profileCity"
+                value="Bhopal"
+              />
+            </div>
+
+            <div class="profile__field-row">
+              <div class="profile__field">
+                <label class="profile__label" for="profilestate">State</label>
+                <input
+                  class="profile__input"
+                  type="text"
+                  id="profilestate"
+                  value="Madhya pradesh"
+                />
+              </div>
+              <div class="profile__field">
+                <label class="profile__label" for="profilecon">Country</label>
+                <input
+                  class="profile__input"
+                  type="text"
+                  id="profilecon"
+                  value="India"
+                  
+                />
+              </div>
+            </div>
+
+            <button
+              class="btn btn--outline profile__location-btn"
+              type="button"
+            >
+              <i class="fa-solid fa-map-location-dot"></i>
+              Change Location
+            </button>
+          </div>
+
+          <div class="profile__section">
+            <h4 class="profile__section-title">
+              <i class="fa-solid fa-bell"></i>
+              Notifications
+            </h4>
+
+            <div class="profile__toggle-row">
+              <span class="profile__toggle-label">Enable Notifications</span>
+              <label class="profile__toggle">
+                <input type="checkbox" class="profile__toggle-input" checked />
+                <span class="profile__toggle-track">
+                  <span class="profile__toggle-thumb"></span>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <div class="profile__section">
+            <h4 class="profile__section-title">
+              <i class="fa-solid fa-clock"></i>
+              Notify Me Before
+            </h4>
+
+            <div class="profile__radio-group">
+              <label class="profile__radio">
+                <input
+                  type="radio"
+                  name="notifyBefore"
+                  class="profile__radio-input"
+                  value="15"
+                />
+                <span class="profile__radio-mark"></span>
+                <span class="profile__radio-text">15 Minutes</span>
+              </label>
+
+              <label class="profile__radio">
+                <input
+                  type="radio"
+                  name="notifyBefore"
+                  class="profile__radio-input"
+                  value="30"
+                  checked
+                />
+                <span class="profile__radio-mark"></span>
+                <span class="profile__radio-text">30 Minutes</span>
+              </label>
+
+              <label class="profile__radio">
+                <input
+                  type="radio"
+                  name="notifyBefore"
+                  class="profile__radio-input"
+                  value="60"
+                />
+                <span class="profile__radio-mark"></span>
+                <span class="profile__radio-text">1 Hour</span>
+              </label>
+
+              <label class="profile__radio">
+                <input
+                  type="radio"
+                  name="notifyBefore"
+                  class="profile__radio-input"
+                  value="120"
+                />
+                <span class="profile__radio-mark"></span>
+                <span class="profile__radio-text">2 Hours</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="profile__actions">
+            <button class="btn btn--primary profile__save-btn" type="button">
+              <i class="fa-solid fa-check"></i>
+              Save Changes
+            </button>
+            <button class="btn btn--outline profile__logout-btn" type="button">
+              <i class="fa-solid fa-right-from-bracket"></i>
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <p>&copy; 2026 Smart Weather Alert System. All rights reserved.</p>
+    </footer>
+
+    <div class="overlay"></div>
+
+    <script type="module" src="assets/script.js"></script>
+  </body>
 </html>
