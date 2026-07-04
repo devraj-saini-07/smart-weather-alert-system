@@ -39,127 +39,351 @@ savebtn.addEventListener("click", () => {
   console.log("save in firebase");
 });
 
-// create alert div add 
+// create alert div add
+function showAlert(alert) {
+  console.log('call show alert');
+  const section = document.querySelector(".recent-alerts");
 
-function showAlert() {
-  let div1 = document.createElement("div");
-  div1.classList.add("alert-card");
-  div1.classList.add("glass");
+  document.querySelectorAll(".alert-card").forEach((card) => card.remove());
+  const date = new Date();
 
-  let div2 = document.createElement("div");
-  div2.classList.add("alert-card__left");
+  const time = date.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
 
-  let div21 = document.createElement("div");
-  div21.classList.add("alert-card__icon");
+  const currentDate = date.toLocaleDateString("en-GB").replace(/\//g, "-");
 
-  const icon = document.createElement("i");
-  icon.className = "fa-solid fa-cloud-showers-heavy";
-  div21.append(icon);
+  const card = document.createElement("div");
 
-  let div22 = document.createElement("div");
-  div22.classList.add("alert-card__text");
-  let h3 = document.createElement("h3");
-  h3.classList.add("alert-card__title");
-  h3.textContent = "Heavy Rain Alert";
+  card.className = "alert-card glass";
 
-  div22.appendChild(h3);
+  card.innerHTML = `
 
-  let div221 = document.createElement("div");
-  div221.classList.add("alert-card__meta");
+    <div class="alert-card__left">
 
-  const dateSpan = document.createElement("span");
+        <div class="alert-card__icon">
 
-  const calendarIcon = document.createElement("i");
-  calendarIcon.className = "fa-regular fa-calendar";
+            <i class="${alert.icon}" style="color:${alert.color}"></i>
 
-  dateSpan.appendChild(calendarIcon);
-  dateSpan.appendChild(document.createTextNode(" 9 May 2025"));
+        </div>
 
-  const timeSpan = document.createElement("span");
+        <div class="alert-card__text">
 
-  const clockIcon = document.createElement("i");
-  clockIcon.className = "fa-regular fa-clock";
+            <h3 class="alert-card__title">${alert.title}</h3>
 
-  timeSpan.appendChild(clockIcon);
-  timeSpan.appendChild(document.createTextNode(" 2:15 PM"));
+            <div class="alert-card__meta">
 
-  // Append spans to parent
-  div221.appendChild(dateSpan);
-  div221.appendChild(timeSpan);
+                <span>
+                    <i class="fa-regular fa-calendar"></i>
+                    ${currentDate}
+                </span>
 
-  let p =document.createElement("p");
-  p.classList.add('alert-card__desc');
-  p.textContent ="Heavy rain expected in your area. Carry an umbrella and stay safe!";
+                <span>
+                    <i class="fa-regular fa-clock"></i>
+                    ${time}
+                </span>
 
-  // Jis div me add karna ho
-  div22.appendChild(div221);
-  div22.appendChild(p);
-  console.log(div22);
+            </div>
 
-  div2.appendChild(div21);
-  div2.appendChild(div22);
-  console.log(div2);
+            <p class="alert-card__desc">
 
-  div1.append(div2);
-  const div3 =document.createElement("div");
-  div3.classList.add("alert-card__right");
+                ${alert.message}
 
-  const btn = document.createElement("button");
-  btn.id = "viewDetailsBtn";
-  btn.classList.add("btn","btn--primary");
-  btn.textContent="  View Details";
-  
+            </p>
 
-  div3.append(btn);
+        </div>
 
-  div1.appendChild(div3);
+    </div>
 
+    <div class="alert-card__right">
 
+        <button class="btn btn--primary">
 
+            View Details
 
-console.log(div1);
-  document.querySelector('.recent-alerts').appendChild(div1);
-  
+        </button>
+
+    </div>
+
+    `;
+
+  section.appendChild(card);
 }
 
-showAlert();
+// get object for alert
+function getAlertData(type) {
+  console.log('call get alert');
+  switch (type) {
+    case "rain":
+      return {
+        title: "Rain Alert",
+        message:
+          "Light rain is expected in your area. Carry an umbrella if you are going outside.",
+        icon: "fa-solid fa-cloud-rain",
+        color: "#4FC3F7",
+      };
 
-// shield color danger 
+    case "heavy-rain":
+      return {
+        title: "Heavy Rain Alert",
+        message:
+          "Heavy rainfall is expected. Avoid unnecessary travel and stay indoors if possible.",
+        icon: "fa-solid fa-cloud-showers-heavy",
+        color: "#2196F3",
+      };
 
-function shieldchange(mode){
+    case "wind":
+      return {
+        title: "Strong Wind Alert",
+        message:
+          "Strong winds are expected. Secure outdoor items and be careful while travelling.",
+        icon: "fa-solid fa-wind",
+        color: "#FFA726",
+      };
 
-   const border = document.querySelector(".alert-banner");
-   const bell = document.querySelector(".fa-bell");
-   const shield = document.querySelector(".fa-shield-halved");
-   const containh3 = document.querySelector(".alert-banner__title");
-   const containdes = document.querySelector(".alert-banner__desc");
-    
+    case "Thunderstorm-Alert":
+      return {
+        title: "Thunderstorm Alert",
+        message: "Thunderstorm is expected. Stay indoors and avoid open areas.",
+        icon: "fa-solid fa-bolt",
+        color: "#ef4444",
+      };
 
+    default:
+      return null;
+  }
+}
+// shield color danger
+function shieldchange(mode) {
+  console.log('call shiel change');
+  const border = document.querySelector(".alert-banner");
+  const bell = document.querySelector(".fa-bell");
+  const shield = document.querySelector(".fa-shield-halved");
+  const containh3 = document.querySelector(".alert-banner__title");
+  const containdes = document.querySelector(".alert-banner__desc");
 
-    if(mode=="danger"){
+  switch (mode) {
+    // 🔴 High Alert
+    case "danger":
+      border.style.borderColor = "#ef4444";
 
-    border.style.borderColor = "#be0404ea";
-    bell.style.color = "#be0404ea";
-    shield.style.color = "#be0404ea";
+      bell.style.color = "#ef4444";
 
-    containh3.textContent = "High alerts";
-    containh3.style.color = "#be0404ea";
+      shield.style.color = "#ef4444";
 
-    containdes.textContent ="High alert so stay home and rest in home heavy alert zone in come your city.";
-    containdes.style.color = "#be0404ea";
+      containh3.textContent = "High Weather Alert";
 
-    }else{
+      containh3.style.color = "#ef4444";
 
-    border.style.borderColor = "#22c55e";
-    bell.style.color = "#22c55e";
-    shield.style.color = "#22c55e";
+      containdes.textContent =
+        "Severe weather is expected. Stay indoors and avoid unnecessary travel.";
 
-     containh3.textContent = " No Active Alerts";
-    containh3.style.color = "#22c55e";
+      containdes.style.color = "#ef4444";
 
-    containdes.textContent =" You are all set! There are no severe weather alerts for your location.";
-    containdes.style.color = "#22c55e";
+      break;
+
+    // 🟡 Medium Alert
+    case "warning":
+      border.style.borderColor = "#facc15";
+
+      bell.style.color = "#facc15";
+
+      shield.style.color = "#facc15";
+
+      containh3.textContent = "Weather Warning";
+
+      containh3.style.color = "#facc15";
+
+      containdes.textContent =
+        "Rain or strong winds are expected. Please stay updated.";
+
+      containdes.style.color = "#facc15";
+
+      break;
+
+    // 🟢 Safe
+    default:
+      border.style.borderColor = "#22c55e";
+
+      bell.style.color = "#22c55e";
+
+      shield.style.color = "#22c55e";
+
+      containh3.textContent = "No Active Alerts";
+
+      containh3.style.color = "#22c55e";
+
+      containdes.textContent =
+        "You are all set! There are no severe weather alerts for your location.";
+
+      containdes.style.color = "#22c55e";
+
+      break;
+  }
+}
+
+function checkAlert(weather) {
+  const code = weather.weatherCode;
+console.log('call checkalert');
+  // Thunderstorm
+  if (code >= 95) {
+    shieldchange("danger");
+   showAlert(getAlertData("Thunderstorm-Alert"));
+    return;
+  }
+
+  // Heavy Rain
+  if (code == 65 || code == 82) {
+    shieldchange("danger");
+    showAlert(getAlertData("heavy-rain"));
+    return;
+  }
+
+  // Rain / Drizzle
+  if (
+    code == 51 ||
+    code == 53 ||
+    code == 55 ||
+    code == 61 ||
+    code == 63 ||
+    code == 80 ||
+    code == 81
+  ) {
+    shieldchange("warning");
+    showAlert(getAlertData("rain"));
+    return;
+  }
+
+  if (weather.wind >= 30) {
+    shieldchange("warning");
+    showAlert(getAlertData("wind"));
+    return;
+  }
+
+  shieldchange("safe");
+}
+
+console.log("api fun");
+import { getCurrentLocation, getCity } from "./main.js";
+import { getWeather, getWeatherCondition } from "./weather.js";
+
+async function init() {
+  console.log("api callling");
+  try {
+    const location = await getCurrentLocation();
+
+    localStorage.setItem("userLocation", JSON.stringify(location));
+
+    await getCity();
+
+    await getWeather();
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+// init();
+
+// get locationall
+const location = JSON.parse(localStorage.getItem("userLocation"));
+
+console.log(location);
+
+const weather = JSON.parse(localStorage.getItem("weatherData"));
+
+console.log(weather);
+
+async function locationupdate() {
+  const location_city = document.querySelector(".location__city");
+  location_city.textContent = `${location.city}, ${location.state}`;
+}
+
+async function weatherupdate() {
+  checkAlert(weather);
+
+  const current_temp = document.querySelector(".current-temp__value");
+  current_temp.textContent = weather.temperature;
+
+  const current_condition = document.querySelector(".current-condition");
+  current_condition.textContent = weather.conditionicon.condition;
+
+  const icon = document.querySelector("#icontemp");
+  icon.className = weather.conditionicon.icon;
+
+  const lasttimeupdate = document.querySelector("#lastUpdated");
+
+  let datetime = new Date(weather.updatedAt);
+
+  const time = datetime.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  const formattedDate = datetime
+    .toLocaleDateString("en-GB")
+    .replace(/\//g, "-");
+
+  lasttimeupdate.textContent = `${time} ${formattedDate}`;
+
+  const stat_humidi = document.querySelector("#humidity");
+  stat_humidi.textContent = weather.humidity;
+
+  const stat_wind = document.querySelector("#wind");
+  stat_wind.textContent = weather.wind;
+
+  const stat_pre = document.querySelector("#pressure");
+  stat_pre.textContent = weather.pressure;
+
+  const forecastItems = document.querySelectorAll(".forecast-item");
+
+  const times = weather.hourly.time;
+  const temps = weather.hourly.temperature;
+  const codes = weather.hourly.weatherCode;
+
+  const currentHour = new Date().getHours();
+
+  // API me current hour kaha hai
+  let startIndex = times.findIndex((time) => {
+    return new Date(time).getHours() === currentHour;
+  });
+
+  // Agar na mile to first index
+  if (startIndex === -1) {
+    startIndex = 0;
+  }
+
+  forecastItems.forEach((item, index) => {
+    const dataIndex = startIndex + index * 3; // 3-3 hour gap
+
+    if (dataIndex >= times.length) return;
+
+    const timeSpan = item.querySelector(".forecast-item__time");
+    const tempSpan = item.querySelector(".forecast-item__temp");
+    const icon = item.querySelector(".forecast-item__icon");
+
+    const date = new Date(times[dataIndex]);
+
+    if (index === 0) {
+      timeSpan.textContent = "Now";
+    } else {
+      timeSpan.textContent = date.toLocaleTimeString([], {
+        hour: "numeric",
+        hour12: true,
+      });
     }
+
+    tempSpan.textContent = `${Math.round(temps[dataIndex])}°C`;
+
+    const info = getWeatherCondition(codes[dataIndex]);
+
+    icon.className = `${info.icon} forecast-item__icon`;
+
+    icon.style.color = info.color;
+  });
 }
 
-shieldchange("danger");
+locationupdate();
+weatherupdate();

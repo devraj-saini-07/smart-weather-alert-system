@@ -57,7 +57,7 @@
           <div class="location">
             <i class="fa-solid fa-location-dot location__pin"></i>
             <div class="location__text">
-              <span class="location__city">Bhopal, Madhya Pradesh</span>
+              <span class="location__city">indore, MP</span>
               <span class="location__label">Current Location</span>
             </div>
           </div>
@@ -66,7 +66,7 @@
             <span class="current-temp__value">27</span>
             <span class="current-temp__unit">°C</span>
             <div class="current-temp__icon animate-float">
-              <i class="fa-solid fa-cloud-sun"></i>
+              <i class="fa-solid fa-cloud-sun" id="icontemp"></i>
             </div>
           </div>
 
@@ -88,21 +88,21 @@
               <i class="fa-solid fa-droplet stat-item__icon"></i>
               <div class="stat-item__text">
                 <span class="stat-item__label">Humidity</span>
-                <span class="stat-item__value">65%</span>
+                <span class="stat-item__value" id="humidity">65%</span>
               </div>
             </div>
             <div class="stat-item">
               <i class="fa-solid fa-wind stat-item__icon"></i>
               <div class="stat-item__text">
                 <span class="stat-item__label">Wind</span>
-                <span class="stat-item__value">18 km/h</span>
+                <span class="stat-item__value" id="wind">18 km/h</span>
               </div>
             </div>
             <div class="stat-item">
               <i class="fa-solid fa-gauge stat-item__icon"></i>
               <div class="stat-item__text">
                 <span class="stat-item__label">Pressure</span>
-                <span class="stat-item__value">1008 hPa</span>
+                <span class="stat-item__value" id="pressure">1008 hPa</span>
               </div>
             </div>
           </div>
@@ -170,7 +170,7 @@
       <section class="recent-alerts fade-in">
         <h2 class="section-title">Recent Alerts</h2>
 
-        <div class="alert-card glass">
+        <!-- <div class="alert-card glass">
           <div class="alert-card__left">
             <div class="alert-card__icon">
               <i class="fa-solid fa-cloud-showers-heavy"></i>
@@ -192,7 +192,7 @@
               View Details
             </button>
           </div>
-        </div>
+        </div> -->
       </section>
     </main>
 
