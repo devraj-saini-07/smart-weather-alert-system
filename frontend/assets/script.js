@@ -44,13 +44,22 @@ window.addEventListener("DOMContentLoaded", async () => {
     if (user) {
 
         await firebase.loadProfile();
+        if (!sessionStorage.getItem("welcomeSent")) {
 
+        sessionStorage.setItem("welcomeSent", "true");
+
+        setTimeout(async () => {
+
+            await firebase.welcomeNotification();
+
+        }, 2 * 60 * 1000);
+      }
     } else {
 
         firebase.showGuestUI();
 
     }
-
+     await checkAlert(weather);
 });
 
 saveBtn.addEventListener("click", async () => {
@@ -79,7 +88,25 @@ saveBtn.addEventListener("click", async () => {
             break;
 
         case "profile":
+            const profile = {
 
+    name: document.querySelector("#profileName").value,
+
+    email: document.querySelector("#profileEmail").value,
+
+    city: document.querySelector("#profileCity").value,
+
+    state: document.querySelector("#profilestate").value,
+
+    country: document.querySelector("#profilecon").value,
+
+    notificationEnabled: document.querySelector("#profile_togglenoti").checked,
+
+    notifyBefore: Number(
+        document.querySelector('input[name="notifyBefore"]:checked').value
+    )
+
+};
             await firebase.saveProfile(profile);
             break;
 
@@ -234,6 +261,7 @@ function getAlertData(type) {
 // shield color danger
 function shieldchange(mode) {
   console.log('call shiel change');
+  console.log(mode);
   const border = document.querySelector(".alert-banner");
   const bell = document.querySelector(".fa-bell");
   const shield = document.querySelector(".fa-shield-halved");
@@ -300,47 +328,82 @@ function shieldchange(mode) {
   }
 }
 
-function checkAlert(weather) {
-  const code = weather.weatherCode;
-console.log('call checkalert');
-  // Thunderstorm
-  if (code >= 95) {
-    shieldchange("danger");
-   showAlert(getAlertData("Thunderstorm-Alert"));
-    return;
-  }
+async function checkAlert(weather) {
 
-  // Heavy Rain
-  if (code == 65 || code == 82) {
-    shieldchange("danger");
-    showAlert(getAlertData("heavy-rain"));
-    return;
-  }
+    console.log("call checkalert");
 
-  // Rain / Drizzle
-  if (
-    code == 51 ||
-    code == 53 ||
-    code == 55 ||
-    code == 61 ||
-    code == 63 ||
-    code == 80 ||
-    code == 81
-  ) {
-    shieldchange("warning");
-    showAlert(getAlertData("rain"));
-    return;
-  }
+    // Next 1 Hour Forecast
+const nextHour = (new Date().getHours() + 1) % 24;
+    const code = weather.hourly.weatherCode[nextHour];
+    const wind = weather.wind;
 
-  if (weather.wind >= 30) {
-    shieldchange("warning");
-    showAlert(getAlertData("wind"));
-    return;
-  }
+    
 
-  shieldchange("safe");
+    // Thunderstorm
+    if (code >= 92) {
+
+        const alert = getAlertData("Thunderstorm-Alert");
+        alert.forecastTime = weather.hourly.time[nextHour];
+
+        shieldchange("danger");
+        showAlert(alert);
+        
+        await firebase.saveAlert(alert);
+
+        return;
+    }
+
+    // Heavy Rain
+    if (code == 65 || code == 82) {
+
+        const alert = getAlertData("heavy-rain");
+        alert.forecastTime = weather.hourly.time[nextHour];
+        shieldchange("danger");
+        showAlert(alert);
+
+        await firebase.saveAlert(alert);
+
+        return;
+    }
+
+    // Rain / Drizzle
+    if (
+        code == 51 ||
+        code == 53 ||
+        code == 55 ||
+        code == 61 ||
+        code == 63 ||
+        code == 80 ||
+        code == 81
+    ) {
+
+        const alert = getAlertData("rain");
+        alert.forecastTime = weather.hourly.time[nextHour];
+        shieldchange("warning");
+        showAlert(alert);
+
+        await firebase.saveAlert(alert);
+
+        return;
+    }
+
+    // Strong Wind
+    if (wind >= 10) {
+
+        const alert = getAlertData("wind");
+        alert.forecastTime = weather.hourly.time[nextHour];
+        shieldchange("warning");
+        showAlert(alert);
+
+        await firebase.saveAlert(alert);
+
+        return;
+    }
+
+    // Safe
+    shieldchange("safe");
 }
-
+ 
 console.log("api fun");
 import { getCurrentLocation, getCity } from "./main.js";
 import { getWeather, getWeatherCondition } from "./weather.js";
@@ -377,7 +440,9 @@ async function locationupdate() {
 }
 
 async function weatherupdate() {
-  checkAlert(weather);
+  await checkAlert(weather);
+  console.log("hii 85g49");
+  console.log(weather);
 
   const current_temp = document.querySelector(".current-temp__value");
   current_temp.textContent = weather.temperature;

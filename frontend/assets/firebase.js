@@ -1,4 +1,9 @@
 import { auth, db } from "./fireconfig.js";
+
+import { messaging } from "./fireconfig.js";
+
+import { getToken } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-messaging.js";
+
 import * as script from "./script.js";
 
 import {
@@ -7,13 +12,14 @@ import {
   signOut,
   onAuthStateChanged,
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-
 import {
   doc,
   setDoc,
   getDoc,
+  collection,
+  addDoc,
+  serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-
 export let isLoggedIn = false;
 export let profileMode = "guest";
 
@@ -66,8 +72,7 @@ export async function login(email, password) {
 
     const location = JSON.parse(localStorage.getItem("userLocation"));
 
-   await loadProfile();
-
+    await loadProfile();
 
   } catch (error) {
     console.log(error.message);
@@ -141,8 +146,8 @@ export async function logout() {
 
 // Login hone se pehle
 export async function showGuestUI() {
-    profileMode = "guest";
-    document.querySelector(".profile__top").style.display = "none";
+  profileMode = "guest";
+  document.querySelector(".profile__top").style.display = "none";
 
   document.querySelectorAll(".profile__section").forEach((section) => {
     section.style.display = "none";
@@ -151,8 +156,8 @@ export async function showGuestUI() {
   const saveBtn = document.querySelector(".profile__save-btn");
   const logoutBtn = document.querySelector(".profile__logout-btn");
 
-   document.querySelector("#profileName").readOnly = false;
-document.querySelector("#profileEmail").readOnly = false;
+  document.querySelector("#profileName").readOnly = false;
+  document.querySelector("#profileEmail").readOnly = false;
   saveBtn.innerHTML = `
         <i class="fa-solid fa-right-to-bracket"></i>
         Login
@@ -162,14 +167,12 @@ document.querySelector("#profileEmail").readOnly = false;
         <i class="fa-solid fa-user-plus"></i>
         Sign Up
     `;
-
- 
 }
 
 // Login Form
 export async function showLoginUI() {
-    profileMode = "login";
-    document.querySelector(".profile__top").style.display = "flex";
+  profileMode = "login";
+  document.querySelector(".profile__top").style.display = "flex";
 
   document.querySelector(".profile__name").textContent = "Login";
   document.querySelector(".profile__email").textContent =
@@ -201,13 +204,12 @@ export async function showLoginUI() {
         <i class="fa-solid fa-arrow-left"></i>
         Back
     `;
-
 }
 
 // Signup Form
 export async function showSignupUI() {
-    profileMode = "signup";
-    document.querySelector(".profile__top").style.display = "flex";
+  profileMode = "signup";
+  document.querySelector(".profile__top").style.display = "flex";
 
   document.querySelector(".profile__name").textContent = "Create Account";
   document.querySelector(".profile__email").textContent =
@@ -225,7 +227,6 @@ export async function showSignupUI() {
   document.querySelector("#profile__pass").style.display = "flex";
   document.querySelector("#profileName").value = "";
   document.querySelector("#profileEmail").value = "";
-  
 
   document.querySelector("#profileName").placeholder = "Enter Name";
   document.querySelector("#profileEmail").placeholder = "Enter Email";
@@ -247,7 +248,7 @@ export async function showSignupUI() {
 // Login Success
 export async function showProfileUI(user) {
   isLoggedIn = true;
-    profileMode = "profile";
+  profileMode = "profile";
   document.querySelector(".profile__top").style.display = "flex";
 
   document.querySelectorAll(".profile__section").forEach((section) => {
@@ -297,4 +298,146 @@ export async function togglechange(event) {
     // Firebase me false save karna
     // notificationEnabled: false
   }
+}
+
+export async function saveAlert(alert) {
+  console.log("call savealert");
+
+  try {
+    const user = auth.currentUser;
+
+    console.log("Current User:", user);
+
+    if (!user) {
+      console.log("User not logged in");
+      return;
+    }
+
+    const now = new Date();
+
+    await addDoc(collection(db, "users", user.uid, "alerts"), {
+      title: alert.title,
+      message: alert.message,
+      icon: alert.icon,
+      color: alert.color,
+      
+      forecastTime: alert.forecastTime,
+
+      date: now.toLocaleDateString("en-GB"),
+      time: now.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      }),
+      createdAt: serverTimestamp(),
+      isSent: false,
+    });
+
+    console.log("Alert Saved Successfully");
+  } catch (error) {
+    console.error(error); // <-- message ki jagah pura error print karo
+  }
+}
+
+// fcm token permission
+export async function enableNotification() {
+
+    console.log("call notification");
+
+    try {
+
+        const permission = await Notification.requestPermission();
+
+        if (permission !== "granted") {
+
+            console.log("Notification Permission Denied");
+            return;
+
+        }
+
+        // 👇 Service Worker manually register karo
+        const registration = await navigator.serviceWorker.register(
+            "/frontend/firebase-messaging-sw.js"
+        );
+
+        console.log("Service Worker Registered");
+
+        // 👇 Ab token lo
+        const token = await getToken(messaging, {
+
+            vapidKey: "BBlnh7E5vSeaJ9hPSFbocF09x4p_W01iEdxsmidh-0oB91Rh1al_-0XhPHwKY3ZkSv0ZnVsHd7gRn5xWvqvylpE",
+
+            serviceWorkerRegistration: registration
+
+        });
+
+        console.log("FCM Token:", token);
+
+        await setDoc(
+            doc(db, "users", auth.currentUser.uid),
+            {
+                fcmToken: token
+            },
+            {
+                merge: true
+            }
+        );
+
+        console.log("FCM Token Saved");
+
+    } catch (error) {
+
+        console.error(error);
+
+    }
+
+}
+
+
+// nitification api 
+export async function notificationapi(){
+  const user = auth.currentUser;
+
+if (user) {
+
+    const response = await fetch("http://localhost:5000/send-notification", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            uid: user.uid
+        })
+    });
+
+    const result = await response.json();
+
+    console.log(result);
+
+}
+}
+
+export async function welcomeNotification() {
+
+    const user = auth.currentUser;
+
+    if (!user) return;
+
+    const response = await fetch(
+        "http://localhost:5000/send-welcome-notification",
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                uid: user.uid
+            })
+        }
+    );
+
+    const result = await response.json();
+
+    console.log(result);
+
 }
