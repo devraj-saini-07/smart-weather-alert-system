@@ -1,3 +1,6 @@
+import * as firebase from "./firebase.js";
+
+
 // profile icon
 const profilebtn = document.querySelector("#profileBtn");
 
@@ -22,24 +25,97 @@ closePopupBtn.addEventListener("click", () => {
   overlay.style.display = "none";
 });
 
-// user login logout
-const savebtn = document.querySelector(".profile__save-btn");
-const logoutbtn = document.querySelector(".profile__logout-btn");
 
-logoutbtn.addEventListener("click", () => {
-  const iconbtn = document.querySelector(".icon-btn");
+// firebase
 
-  // logic ke according set color
-  iconbtn.style.background = "rgba(255, 255, 255, 0.08)";
+let isLoggedIn = false;
 
-  console.log("logout");
+
+
+
+const saveBtn = document.querySelector(".profile__save-btn");
+const logoutBtn = document.querySelector(".profile__logout-btn");
+
+
+window.addEventListener("DOMContentLoaded", async () => {
+
+    const user = await firebase.checkUser();
+
+    if (user) {
+
+        await firebase.loadProfile();
+
+    } else {
+
+        firebase.showGuestUI();
+
+    }
+
 });
 
-savebtn.addEventListener("click", () => {
-  console.log("save in firebase");
+saveBtn.addEventListener("click", async () => {
+
+    switch(firebase.profileMode){
+
+        case "guest":
+            firebase.showLoginUI();
+            break;
+
+        case "login":
+
+            await firebase.login(
+                profileEmail.value,
+                profilepass.value
+            );
+            break;
+
+        case "signup":
+
+            await firebase.signup(
+                profileName.value,
+                profileEmail.value,
+                profilepass.value
+            );
+            break;
+
+        case "profile":
+
+            await firebase.saveProfile(profile);
+            break;
+
+    }
+
 });
 
-// create alert div add
+logoutBtn.addEventListener("click", async () => {
+
+    switch(firebase.profileMode){
+
+        case "guest":
+
+            firebase.showSignupUI();
+            break;
+
+        case "login":
+
+            firebase.showGuestUI();
+            break;
+
+        case "signup":
+
+            firebase.showGuestUI();
+            break;
+
+        case "profile":
+
+            await firebase.logout();
+            break;
+
+    }
+
+});
+
+
 function showAlert(alert) {
   console.log('call show alert');
   const section = document.querySelector(".recent-alerts");
@@ -387,3 +463,39 @@ async function weatherupdate() {
 
 locationupdate();
 weatherupdate();
+
+
+export function setlocation(){
+  console.log("call setlocation");
+document.querySelector("#profileCity").value=location.city;
+  document.querySelector("#profilestate").value=location.state;
+  document.querySelector("#profilecon").value=location.country;
+}
+
+
+const changelocation = document.querySelector('#changelocation');
+
+changelocation.addEventListener("click", ()=>{
+  setlocation();
+  
+});
+
+
+const togglenoti =document.querySelector("#profile_togglenoti");
+
+togglenoti.addEventListener("change", (det)=>{
+
+  const event = det;
+
+  firebase.togglechange(event);
+
+});
+
+const inputcheck = document.querySelectorAll('.profile__radio-input');
+
+inputcheck.forEach((inp)=>{
+
+  inp.addEventListener("change", (select)=>{
+    console.log(select.target.value);
+  });
+})

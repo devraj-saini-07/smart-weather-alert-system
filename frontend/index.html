@@ -224,25 +224,37 @@
                 class="profile__input"
                 type="text"
                 id="profileName"
-                value="Alex Morgan"
+                placeholder="Alex Morgan"
               
               />
             </div>
 
             <div class="profile__field">
-              <label class="profile__label" for="profileEmail">Email</label>
+              <label class="profile__label" for="profileEmail" id="#profile__email">Email</label>
               <input
                 class="profile__input"
                 type="email"
                 id="profileEmail"
-                value="alex.morgan@example.com"
+                placeholder="alex.morgan@example.com"
+                
+                required
                 checked
+              />
+            </div>
+             <div class="profile__field" id="profile__pass">
+              <label class="profile__label" for="profilepass">Password</label>
+              <input
+                class="profile__input"
+                type="password"
+                id="profilepass"
+                placeholder="Enter Password"
+                
               />
             </div>
           </div>
 
           <div class="profile__section">
-            <h4 class="profile__section-title">
+            <h4 class="profile__section-title" >
               <i class="fa-solid fa-location-dot"></i>
               Current Location
             </h4>
@@ -282,6 +294,7 @@
             <button
               class="btn btn--outline profile__location-btn"
               type="button"
+              id="changelocation"
             >
               <i class="fa-solid fa-map-location-dot"></i>
               Change Location
@@ -297,7 +310,7 @@
             <div class="profile__toggle-row">
               <span class="profile__toggle-label">Enable Notifications</span>
               <label class="profile__toggle">
-                <input type="checkbox" class="profile__toggle-input" checked />
+                <input type="checkbox" class="profile__toggle-input" id="profile_togglenoti" checked />
                 <span class="profile__toggle-track">
                   <span class="profile__toggle-thumb"></span>
                 </span>
