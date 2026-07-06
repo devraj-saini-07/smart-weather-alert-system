@@ -5,10 +5,16 @@ const { initializeApp, cert } = require("firebase-admin/app");
 const { getFirestore } = require("firebase-admin/firestore");
 const { getMessaging } = require("firebase-admin/messaging");
 
-const serviceAccount = require("./serviceAccountKey.json");
+// not access on git hub
+// const serviceAccount = require("./serviceAccountKey.json");
+
 
 initializeApp({
-  credential: cert(serviceAccount),
+  credential: cert({
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+    privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
+  }),
 });
 
 const db = getFirestore();
@@ -157,7 +163,6 @@ app.post("/send-welcome-notification", async (req, res) => {
     } catch (error) {
 
         console.error(error);
-        showMessage("⚠ Unable to connect to the server.");
         res.status(500).json({
             success: false,
             error: error.message
@@ -246,8 +251,10 @@ console.log("Alert Marked As Sent");
 
 }
 
-app.listen(5000, () => {
-  console.log("Server Running on http://localhost:5000");
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+    console.log(`Server Running on ${PORT}`);
 });
 
 checkPendingNotifications();
