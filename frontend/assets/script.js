@@ -425,7 +425,7 @@ async function init() {
   }
 }
 
-// init();
+init();
 
 // get locationall
 const location = JSON.parse(localStorage.getItem("userLocation"));
@@ -437,8 +437,17 @@ const weather = JSON.parse(localStorage.getItem("weatherData"));
 console.log(weather);
 
 async function locationupdate() {
-  const location_city = document.querySelector(".location__city");
-  location_city.textContent = `${location.city}, ${location.state}`;
+
+    const location = JSON.parse(localStorage.getItem("userLocation"));
+
+    const location_city = document.querySelector(".location__city");
+
+    if (!location) {
+        location_city.textContent = "Location not available";
+        return;
+    }
+
+    location_city.textContent = `${location.city}, ${location.state}`;
 }
 
 async function weatherupdate() {
@@ -531,12 +540,19 @@ async function weatherupdate() {
 locationupdate();
 weatherupdate();
 
+export function setlocation() {
+    console.log("call setlocation");
 
-export function setlocation(){
-  console.log("call setlocation");
-document.querySelector("#profileCity").value=location.city;
-  document.querySelector("#profilestate").value=location.state;
-  document.querySelector("#profilecon").value=location.country;
+    const location = JSON.parse(localStorage.getItem("userLocation"));
+
+    if (!location) {
+        console.log("Location not found");
+        return;
+    }
+
+    document.querySelector("#profileCity").value = location.city || "";
+    document.querySelector("#profilestate").value = location.state || "";
+    document.querySelector("#profilecon").value = location.country || "";
 }
 
 

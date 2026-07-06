@@ -23,6 +23,8 @@ import {
 export let isLoggedIn = false;
 export let profileMode = "guest";
 
+const webapi ="https://smart-weather-alert-system.onrender.com";
+
 export function showMessage(message) {
 
     alert(message);
@@ -71,13 +73,13 @@ export async function login(email, password) {
 
     const user = userCredential.user;
 
-    console.log("Login Success");
+   console.log("Login Success");
 
-    isLoggedIn = true;
-    script.setlocation();
+isLoggedIn = true;
 
+await loadProfile();
 
-    await loadProfile();
+script.setlocation();
 
   }catch (error) {
 
@@ -409,6 +411,7 @@ export async function saveAlert(alert) {
 }
 
 // fcm token permission
+
 export async function enableNotification() {
 
     console.log("call notification");
@@ -467,7 +470,7 @@ export async function notificationapi(){
 
 if (user) {
 
-    const response = await fetch("http://localhost:5000/send-notification", {
+    const response = await fetch(`${webapi}/send-notification`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -490,8 +493,7 @@ export async function welcomeNotification() {
 
     if (!user) return;
 
-    const response = await fetch(
-        "http://localhost:5000/send-welcome-notification",
+    const response = await fetch(`${webapi}/send-welcome-notification`,
         {
             method: "POST",
             headers: {

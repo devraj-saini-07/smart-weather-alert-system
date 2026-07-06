@@ -261,3 +261,5 @@ checkPendingNotifications();
 
 setInterval(checkPendingNotifications, 60 * 1000);
 
+// backend link 
+// https://smart-weather-alert-system.onrender.com/
