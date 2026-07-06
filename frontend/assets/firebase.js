@@ -427,19 +427,21 @@ export async function enableNotification() {
 
         }
 
-       const registration = await navigator.serviceWorker.register(
+   const registration = await navigator.serviceWorker.register(
     "/firebase-messaging-sw.js"
 );
 
-        console.log("Service Worker Registered");
+// Wait until service worker becomes active
+await navigator.serviceWorker.ready;
 
-        const token = await getToken(messaging, {
+console.log("Service Worker Ready");
 
-            vapidKey: "BBlnh7E5vSeaJ9hPSFbocF09x4p_W01iEdxsmidh-0oB91Rh1al_-0XhPHwKY3ZkSv0ZnVsHd7gRn5xWvqvylpE",
+const token = await getToken(messaging, {
+    vapidKey: "BBlnh7E5vSeaJ9hPSFbocF09x4p_W01iEdxsmidh-0oB91Rh1al_-0XhPHwKY3ZkSv0ZnVsHd7gRn5xWvqvylpE",
+    serviceWorkerRegistration: registration
+});
 
-            serviceWorkerRegistration: registration
-
-        });
+console.log("FCM Token:", token);
 
         console.log("FCM Token:", token);
 
