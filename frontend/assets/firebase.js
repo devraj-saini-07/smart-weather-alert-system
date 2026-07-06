@@ -427,9 +427,9 @@ export async function enableNotification() {
 
         }
 
-        const registration = await navigator.serviceWorker.register(
-            "/frontend/firebase-messaging-sw.js"
-        );
+       const registration = await navigator.serviceWorker.register(
+    "/frontend/firebase-messaging-sw.js"
+);
 
         console.log("Service Worker Registered");
 
