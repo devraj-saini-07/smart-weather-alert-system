@@ -1,3 +1,5 @@
+const { sendWelcomeEmail } = require("./email/mailService");
+
 const express = require("express");
 const cors = require("cors");
 
@@ -136,6 +138,7 @@ app.post("/send-welcome-notification", async (req, res) => {
         }
 
         const user = userDoc.data();
+        await sendWelcomeEmail(user);
 
         if (!user.fcmToken) {
             return res.status(400).json({
@@ -163,6 +166,44 @@ app.post("/send-welcome-notification", async (req, res) => {
     } catch (error) {
 
         console.error(error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+
+    }
+
+});
+
+
+app.post("/send-welcome-email", async (req, res) => {
+
+    try {
+
+        const { uid } = req.body;
+
+        const userDoc = await db.collection("users").doc(uid).get();
+
+        if (!userDoc.exists) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+
+        const user = userDoc.data();
+
+        await sendWelcomeEmail(user);
+
+        res.json({
+            success: true,
+            message: "Welcome Email Sent"
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
         res.status(500).json({
             success: false,
             error: error.message

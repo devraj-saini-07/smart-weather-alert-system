@@ -23,12 +23,10 @@ import {
 export let isLoggedIn = false;
 export let profileMode = "guest";
 
-const webapi ="https://smart-weather-alert-system.onrender.com";
+const webapi = "https://smart-weather-alert-system.onrender.com";
 
 export function showMessage(message) {
-
-    alert(message);
-
+  alert(message);
 }
 
 export async function loadProfile() {
@@ -73,43 +71,38 @@ export async function login(email, password) {
 
     const user = userCredential.user;
 
-   console.log("Login Success");
+    console.log("Login Success");
 
-isLoggedIn = true;
+    isLoggedIn = true;
 
-await loadProfile();
+    await loadProfile();
 
-script.setlocation();
-
-  }catch (error) {
-
+    script.setlocation();
+  } catch (error) {
     console.error(error);
 
     switch (error.code) {
+      case "auth/invalid-email":
+        showMessage("❌ Invalid email address.");
+        break;
 
-        case "auth/invalid-email":
-            showMessage("❌ Invalid email address.");
-            break;
+      case "auth/user-not-found":
+        showMessage("❌ No account found with this email.");
+        break;
 
-        case "auth/user-not-found":
-            showMessage("❌ No account found with this email.");
-            break;
+      case "auth/wrong-password":
+      case "auth/invalid-credential":
+        showMessage("❌ Incorrect email or password.");
+        break;
 
-        case "auth/wrong-password":
-        case "auth/invalid-credential":
-            showMessage("❌ Incorrect email or password.");
-            break;
+      case "auth/too-many-requests":
+        showMessage("⚠ Too many login attempts. Please try again later.");
+        break;
 
-        case "auth/too-many-requests":
-            showMessage("⚠ Too many login attempts. Please try again later.");
-            break;
-
-        default:
-            showMessage("❌ Login failed. Please try again.");
+      default:
+        showMessage("❌ Login failed. Please try again.");
     }
-
-}
-
+  }
 }
 
 export async function signup(name, email, password) {
@@ -127,39 +120,35 @@ export async function signup(name, email, password) {
     console.log(user);
 
     await setDoc(doc(db, "users", user.uid), {
-    name: name,
-    email: email,
-    city: "",
-    state: "",
-    country: "",
-    notificationEnabled: true,
-    notifyBefore: 15,
-    updatedAt: Date.now()
-});
-  
-  }catch (error) {
-
+      name: name,
+      email: email,
+      city: "",
+      state: "",
+      country: "",
+      notificationEnabled: true,
+      notifyBefore: 15,
+      updatedAt: Date.now(),
+    });
+  } catch (error) {
     console.error(error);
 
     switch (error.code) {
+      case "auth/email-already-in-use":
+        showMessage("❌ This email is already registered.");
+        break;
 
-        case "auth/email-already-in-use":
-            showMessage("❌ This email is already registered.");
-            break;
+      case "auth/invalid-email":
+        showMessage("❌ Invalid email address.");
+        break;
 
-        case "auth/invalid-email":
-            showMessage("❌ Invalid email address.");
-            break;
+      case "auth/weak-password":
+        showMessage("❌ Password must be at least 6 characters.");
+        break;
 
-        case "auth/weak-password":
-            showMessage("❌ Password must be at least 6 characters.");
-            break;
-
-        default:
-            showMessage("❌ Account could not be created.");
+      default:
+        showMessage("❌ Account could not be created.");
     }
-
-}
+  }
 }
 
 export async function saveProfile(profile) {
@@ -178,7 +167,7 @@ export async function saveProfile(profile) {
       {
         name: profile.name,
 
-        email: user.email, 
+        email: user.email,
 
         city: profile.city,
 
@@ -197,15 +186,17 @@ export async function saveProfile(profile) {
 
     console.log("Profile Saved Successfully");
 
-       await enableNotification();
+    // 1. Welcome Email
+    await welcomeEmail();
+
+    // 2. FCM Token
+    await enableNotification();
 
     setTimeout(async () => {
-
       console.log("Calling Welcome Notification");
 
       await welcomeNotification();
-
-    }, 10000);
+    }, 5000);
   } catch (error) {
     console.log(error.message);
   }
@@ -364,10 +355,8 @@ export async function togglechange(event) {
 
   if (isEnabled) {
     console.log("Notification ON");
-
   } else {
     console.log("Notification OFF");
-
   }
 }
 
@@ -391,7 +380,7 @@ export async function saveAlert(alert) {
       message: alert.message,
       icon: alert.icon,
       color: alert.color,
-      
+
       forecastTime: alert.forecastTime,
 
       date: now.toLocaleDateString("en-GB"),
@@ -406,109 +395,116 @@ export async function saveAlert(alert) {
 
     console.log("Alert Saved Successfully");
   } catch (error) {
-    console.error(error); 
+    console.error(error);
   }
 }
 
 // fcm token permission
 
 export async function enableNotification() {
+  console.log("call notification");
 
-    console.log("call notification");
+  try {
+    const permission = await Notification.requestPermission();
 
-    try {
-
-        const permission = await Notification.requestPermission();
-
-        if (permission !== "granted") {
-
-            console.log("Notification Permission Denied");
-            return;
-
-        }
-
-   const registration = await navigator.serviceWorker.register(
-    "/firebase-messaging-sw.js"
-);
-
-// Wait until service worker becomes active
-await navigator.serviceWorker.ready;
-
-console.log("Service Worker Ready");
-
-const token = await getToken(messaging, {
-    vapidKey: "BBlnh7E5vSeaJ9hPSFbocF09x4p_W01iEdxsmidh-0oB91Rh1al_-0XhPHwKY3ZkSv0ZnVsHd7gRn5xWvqvylpE",
-    serviceWorkerRegistration: registration
-});
-
-console.log("FCM Token:", token);
-
-        console.log("FCM Token:", token);
-
-        await setDoc(
-            doc(db, "users", auth.currentUser.uid),
-            {
-                fcmToken: token
-            },
-            {
-                merge: true
-            }
-        );
-
-        console.log("FCM Token Saved");
-
-    } catch (error) {
-
-        console.error(error);
-
+    if (permission !== "granted") {
+      console.log("Notification Permission Denied");
+      return;
     }
 
+    const registration = await navigator.serviceWorker.register(
+      "/firebase-messaging-sw.js",
+    );
+
+    // Wait until service worker becomes active
+    await navigator.serviceWorker.ready;
+
+    console.log("Service Worker Ready");
+
+    const token = await getToken(messaging, {
+      vapidKey:
+        "BBlnh7E5vSeaJ9hPSFbocF09x4p_W01iEdxsmidh-0oB91Rh1al_-0XhPHwKY3ZkSv0ZnVsHd7gRn5xWvqvylpE",
+      serviceWorkerRegistration: registration,
+    });
+
+    console.log("FCM Token:", token);
+
+    console.log("FCM Token:", token);
+
+    await setDoc(
+      doc(db, "users", auth.currentUser.uid),
+      {
+        fcmToken: token,
+      },
+      {
+        merge: true,
+      },
+    );
+
+    console.log("FCM Token Saved");
+  } catch (error) {
+    console.error(error);
+  }
 }
 
-
-// nitification api 
-export async function notificationapi(){
+// nitification api
+export async function notificationapi() {
   const user = auth.currentUser;
 
-if (user) {
-
+  if (user) {
     const response = await fetch(`${webapi}/send-notification`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            uid: user.uid
-        })
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        uid: user.uid,
+      }),
     });
 
     const result = await response.json();
 
     console.log(result);
-
-}
+  }
 }
 
 export async function welcomeNotification() {
+  const user = auth.currentUser;
 
-    const user = auth.currentUser;
+  if (!user) return;
 
-    if (!user) return;
+  const response = await fetch(`${webapi}/send-welcome-notification`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      uid: user.uid,
+    }),
+  });
 
-    const response = await fetch(`${webapi}/send-welcome-notification`,
-        {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                uid: user.uid
-            })
-        }
-    );
+  const result = await response.json();
 
-    const result = await response.json();
+  console.log(result);
+}
 
-    console.log(result);
+// email
+export async function welcomeEmail() {
+  const user = auth.currentUser;
 
+  if (!user) return;
+
+  const response = await fetch(`${webapi}/send-welcome-email`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      uid: user.uid,
+    }),
+  });
+
+  const result = await response.json();
+
+  console.log(result);
 }
