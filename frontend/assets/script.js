@@ -79,12 +79,12 @@ saveBtn.addEventListener("click", async () => {
             break;
 
         case "signup":
-
-            await firebase.signup(
-                profileName.value,
-                profileEmail.value,
-                profilepass.value
-            );
+          await firebase.signup(
+            profileName.value,
+            profileEmail.value,
+            profilepass.value
+          );
+          
             break;
 
         case "profile":
@@ -107,7 +107,9 @@ saveBtn.addEventListener("click", async () => {
     )
 
 };
+          
             await firebase.saveProfile(profile);
+
             break;
 
     }
@@ -269,7 +271,7 @@ function shieldchange(mode) {
   const containdes = document.querySelector(".alert-banner__desc");
 
   switch (mode) {
-    // 🔴 High Alert
+    //High Alert
     case "danger":
       border.style.borderColor = "#ef4444";
 
@@ -288,7 +290,7 @@ function shieldchange(mode) {
 
       break;
 
-    // 🟡 Medium Alert
+    //Medium Alert
     case "warning":
       border.style.borderColor = "#facc15";
 
@@ -307,7 +309,7 @@ function shieldchange(mode) {
 
       break;
 
-    // 🟢 Safe
+    //Safe
     default:
       border.style.borderColor = "#22c55e";
 

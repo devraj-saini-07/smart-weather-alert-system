@@ -157,7 +157,7 @@ app.post("/send-welcome-notification", async (req, res) => {
     } catch (error) {
 
         console.error(error);
-
+        showMessage("⚠ Unable to connect to the server.");
         res.status(500).json({
             success: false,
             error: error.message

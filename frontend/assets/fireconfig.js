@@ -31,7 +31,7 @@ onMessage(messaging, async (payload) => {
         payload.notification.title,
         {
             body: payload.notification.body,
-            // icon: "/icon.png"
+            // icon: ""
         }
     );
 

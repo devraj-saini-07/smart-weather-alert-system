@@ -23,6 +23,12 @@ import {
 export let isLoggedIn = false;
 export let profileMode = "guest";
 
+export function showMessage(message) {
+
+    alert(message);
+
+}
+
 export async function loadProfile() {
   try {
     const user = auth.currentUser;
@@ -70,13 +76,38 @@ export async function login(email, password) {
     isLoggedIn = true;
     script.setlocation();
 
-    const location = JSON.parse(localStorage.getItem("userLocation"));
 
     await loadProfile();
 
-  } catch (error) {
-    console.log(error.message);
-  }
+  }catch (error) {
+
+    console.error(error);
+
+    switch (error.code) {
+
+        case "auth/invalid-email":
+            showMessage("❌ Invalid email address.");
+            break;
+
+        case "auth/user-not-found":
+            showMessage("❌ No account found with this email.");
+            break;
+
+        case "auth/wrong-password":
+        case "auth/invalid-credential":
+            showMessage("❌ Incorrect email or password.");
+            break;
+
+        case "auth/too-many-requests":
+            showMessage("⚠ Too many login attempts. Please try again later.");
+            break;
+
+        default:
+            showMessage("❌ Login failed. Please try again.");
+    }
+
+}
+
 }
 
 export async function signup(name, email, password) {
@@ -92,9 +123,41 @@ export async function signup(name, email, password) {
     console.log("Signup Success");
 
     console.log(user);
-  } catch (error) {
-    console.log(error.message);
-  }
+
+    await setDoc(doc(db, "users", user.uid), {
+    name: name,
+    email: email,
+    city: "",
+    state: "",
+    country: "",
+    notificationEnabled: true,
+    notifyBefore: 15,
+    updatedAt: Date.now()
+});
+  
+  }catch (error) {
+
+    console.error(error);
+
+    switch (error.code) {
+
+        case "auth/email-already-in-use":
+            showMessage("❌ This email is already registered.");
+            break;
+
+        case "auth/invalid-email":
+            showMessage("❌ Invalid email address.");
+            break;
+
+        case "auth/weak-password":
+            showMessage("❌ Password must be at least 6 characters.");
+            break;
+
+        default:
+            showMessage("❌ Account could not be created.");
+    }
+
+}
 }
 
 export async function saveProfile(profile) {
@@ -113,7 +176,7 @@ export async function saveProfile(profile) {
       {
         name: profile.name,
 
-        email: user.email, // ✅ yahi use karo
+        email: user.email, 
 
         city: profile.city,
 
@@ -131,6 +194,16 @@ export async function saveProfile(profile) {
     );
 
     console.log("Profile Saved Successfully");
+
+       await enableNotification();
+
+    setTimeout(async () => {
+
+      console.log("Calling Welcome Notification");
+
+      await welcomeNotification();
+
+    }, 10000);
   } catch (error) {
     console.log(error.message);
   }
@@ -290,13 +363,9 @@ export async function togglechange(event) {
   if (isEnabled) {
     console.log("Notification ON");
 
-    // Firebase me true save karna
-    // notificationEnabled: true
   } else {
     console.log("Notification OFF");
 
-    // Firebase me false save karna
-    // notificationEnabled: false
   }
 }
 
@@ -335,7 +404,7 @@ export async function saveAlert(alert) {
 
     console.log("Alert Saved Successfully");
   } catch (error) {
-    console.error(error); // <-- message ki jagah pura error print karo
+    console.error(error); 
   }
 }
 
@@ -355,14 +424,12 @@ export async function enableNotification() {
 
         }
 
-        // 👇 Service Worker manually register karo
         const registration = await navigator.serviceWorker.register(
             "/frontend/firebase-messaging-sw.js"
         );
 
         console.log("Service Worker Registered");
 
-        // 👇 Ab token lo
         const token = await getToken(messaging, {
 
             vapidKey: "BBlnh7E5vSeaJ9hPSFbocF09x4p_W01iEdxsmidh-0oB91Rh1al_-0XhPHwKY3ZkSv0ZnVsHd7gRn5xWvqvylpE",

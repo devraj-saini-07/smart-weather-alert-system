@@ -1,15 +1,15 @@
 export async function getWeather() {
   try {
-    // LocalStorage se location lo
+    // LocalStorage se location
     const location = JSON.parse(localStorage.getItem("userLocation"));
 
     const latitude = location.latitude;
     const longitude = location.longitude;
 
-    // API URL
+    // URL api call karna he 
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,pressure_msl,wind_speed_10m,weather_code&hourly=temperature_2m,weather_code&forecast_days=1`;
 
-    // API Call
+    
     const response = await fetch(url);
 
     if (!response.ok) {
