@@ -10,8 +10,21 @@ const transporter = nodemailer.createTransport({
     },
 });
 
+transporter.verify(function (error, success) {
+
+    if (error) {
+        console.log("SMTP Error:", error);
+    } else {
+        console.log("✅ SMTP Server Ready");
+    }
+
+});
+
 async function sendEmail(to, subject, html) {
     try {
+
+        console.log("Sending email to:", to);
+
         const info = await transporter.sendMail({
             from: `"Smart Weather Alert" <${process.env.EMAIL_FROM}>`,
             to,
@@ -19,9 +32,13 @@ async function sendEmail(to, subject, html) {
             html,
         });
 
-        console.log("Email Sent:", info.messageId);
+        console.log("✅ Email Sent:", info);
+
     } catch (error) {
-        console.error("Email Error:", error);
+
+        console.error("❌ Email Error:");
+        console.error(error);
+
     }
 }
 
